@@ -1,34 +1,34 @@
 <html>
 
- <head>
-  <title>Red Hat OpenShift</title>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
   <style>
-    table, th, td {
-      border: 1px solid #111111;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 5px;
-      text-align: left;
-    }
-    h1 {
-        font-family: "Open Sans", Helvetica, Arial, sans-serif;
-    }
-    body {
-        background-color: #eeeeee;
-        color: #222222;
-        font-family: "Open Sans", Helvetica, Arial, sans-serif;
-    }
+        .table-striped>tbody>tr:nth-child(odd)>td,
+        .table-striped>tbody>tr:nth-child(odd)>th {
+            background-color: #e6e6ff;
+        }
 
+        .details {
+            margin-right: 100px;
+            margin-left: 100px;
+        }
+
+        .key {
+            width: 250px;
+        }
   </style>
- </head>
 
- <body>
-   <h1>Red Hat OpenShift - PHP & Database Demo</h1>
-   <br/>
+</head>
+
+<body>
+
+  <h1 id="heading" style="text-align: left">Red Hat OpenShift - PHP & Database Demo</h1>
 
 <?php
-error_reporting(E_ERROR);
 
 $host = getenv("MYSQL_SERVICE_HOST");
 $port = getenv("MYSQL_SERVICE_PORT");
@@ -36,9 +36,40 @@ $database = getenv("MYSQL_SERVICE_DATABASE");
 $username = getenv("MYSQL_SERVICE_USERNAME");
 $password = getenv("MYSQL_SERVICE_PASSWORD");
 
+?>
+
+  <div class="details">
+    <table class="table table-bordered table-striped table-responsive table-hover">
+
+<?php
+error_reporting(E_ERROR);
+
+function write_key_value($key, $value) {
+  echo '<tr><td class="key">' . $key . '</td>';
+  echo '<td><p id="ip">' . $value . '</p></td></tr>';
+}
+
+// Server Details
+$env_text = getenv("TEXT");
+$uptime = shell_exec('uptime -p');
+$cpu = trim(shell_exec("cat /proc/cpuinfo | grep \"model name\" | uniq | awk -F ':' '{print $2}'"));
+$cores = trim(shell_exec("cat /proc/cpuinfo | grep processor | wc -l"));
+
+write_key_value('Server IP', $_SERVER['SERVER_ADDR']);
+write_key_value('Database Name', ($database != '' ? $database : 'Unknown'));
+write_key_value('Environment Variable (TEXT)', ($env_text != '' ? $env_text : 'Unknown'));
+write_key_value('Server Uptime', $uptime);
+write_key_value('CPU', $cpu);
+write_key_value('Number of Cores', $cores);
+?>
+    </table>
+  </div>
+
+<?php
 $conn = mysqli_connect($host, $username, $password, $database, $port);
 
 if ($conn) {
+
   echo "Database is available <br/><br/>";
   $sql = "CREATE TABLE visitors (
           id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -80,13 +111,12 @@ if ($conn) {
   }
 
   mysqli_close($conn);
-} else {
-  echo "Database is not available";
 }
 ?>
 
-    <br/><br/>
-    <img src="powered-transparent-black.png" alt="Powered by OpenShift"/>
+  <br/><br/>
+  <img src="powered-transparent-black.png" alt="Powered by OpenShift"/>
 
-  </body>
+</body>
+
 </html>
