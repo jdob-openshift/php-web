@@ -26,7 +26,7 @@
 
 <body>
 
-  <h1 id="heading" style="text-align: left">Red Hat OpenShift - PHP & Database Demo</h1>
+  <h1 id="heading" style="text-align: center">Red Hat OpenShift - PHP & Database Demo</h1>
 
 <?php
 
