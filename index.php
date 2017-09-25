@@ -44,9 +44,15 @@ $conn = mysqli_connect($host, $username, $password, $database, $port);
 $page_count = 'Unknown';
 
 function write_key_value($key, $value) {
+  echo '<tr><td class="key"><b>' . $key . '</b></td>';
+  echo '<td><p id="ip">' . $value . '</p></td></tr>';
+}
+
+function write_visitor($key, $value) {
   echo '<tr><td class="key">' . $key . '</td>';
   echo '<td><p id="ip">' . $value . '</p></td></tr>';
 }
+
 
 ?>
 
@@ -68,8 +74,10 @@ if ($conn) {
   mysqli_query($conn, $sql);
 
   // Update the count
-  $sql = 'SELECT COUNT(*) FROM visitors';
-  $page_count = mysqli_query($conn, $sql);
+  $sql = 'SELECT COUNT(*) AS page_count FROM visitors';
+  $count_result = mysqli_query($conn, $sql);
+  $data = mysqli_fetch_assoc($count_result);
+  $page_count = $data['page_count'];
 }
 
 ?>
@@ -78,7 +86,7 @@ if ($conn) {
 
     <table class="table table-bordered table-striped table-responsive table-hover">
 <?php
-  write_key_value('Page Hits', $page_count)
+  write_key_value('Page Hits', $page_count);
 ?>
     </table>
 
@@ -102,17 +110,20 @@ write_key_value('Number of Cores', $cores);
 <?php
 
 if ($conn) {
-  $sql = "SELECT id, containerip, visitstamp FROM visitors ORDER BY id DESC LIMIT 20";
+  $sql = "SELECT containerip, visitstamp FROM visitors ORDER BY id DESC LIMIT 20";
   $result = mysqli_query($conn, $sql);
+
+  echo '<h3>Visitors</h3>';
+  echo '<table class="table table-bordered table-striped table-responsive table-hover">';
+  write_visitor('<b>Container IP</b>', '<b>Timestamp</b>');
+
   if (mysqli_num_rows($result) > 0) {
-    echo "<table><tr><th>Id</th><th>Container IP</th><th>Timestamp</th></tr>";
     while($row = mysqli_fetch_assoc($result)) {
-        echo "<tr><td>" . $row["id"] . "</td><td>" . $row["containerip"] . "</td><td>" . $row["visitstamp"] . "</td></tr>";
+      write_visitor($row['containerip'], $row['visitstamp']);
     }
-    echo "</table>";
-  } else {
-    echo "0 results";
   }
+
+  echo '</table>';
 
   mysqli_close($conn);
 }
